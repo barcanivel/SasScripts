@@ -1,0 +1,47 @@
+With this code, you can automatically search and get a dataset name, reference and last updated.
+
+%macro getDataset(
+lib_name /* local that your dataset is allocated */,
+base_name /* Prefix of dataset you are looking for */,
+var /* macro variable that you will save the table name */,
+num /* table reference, 1 will mean the newest table, 2 the second newest table and so on */,
+dt_ini/* the position that date starts on the table name - 0 means that the table have no data on it */,
+dt_total /* Put how many chars have the date string, example 202111 -> 6 */);
+
+    %global &var. DT_&var. DATA_MUD_&var.;
+
+    proc contents data=&lib_name.._ALL_ nods;
+        ods output members=work.base;
+    run;
+
+ 
+    %if &dt_ini. ne 0 %then %do;
+        data &var._tratado (rename= Name = base_name); set base;
+            if find(Name,"&base_name.","i");
+
+            if missing(Num) then delete;
+        run;
+
+        proc sort data=&var._tratado; by descending base_name ;run;
+
+        DATA _NULL_; SET &var._tratado;
+            IF _N_ = &num. THEN DO;
+                CALL SYMPUT ("&var.", "&lib_name.."||base_name);
+                CALL SYMPUT ("DATA_MUD_&var.", substr(PUT(LastModified,NLDATMS27.),4,3)||substr(PUT(LastModified,NLDATMS27.),1,3)||substr(PUT(LastModified,NLDATMS27.),7,4));
+                CALL SYMPUT ("DT_&var.", substr(base_name,&dt_ini.,&dt_fim.));
+            end;
+        RUN;
+
+    options nosource;
+
+    %put &var. - Ultima modificação: &&DATA_MUD_&var.. - Data base: &&DT_&var..;
+
+    options source;
+
+ 
+
+        proc delete data=&var._tratado;run;
+
+ 
+
+%mend;
