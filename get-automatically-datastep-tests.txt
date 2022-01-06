@@ -1,0 +1,40 @@
+/* This is an example of the function that you can implement
+The example uses work as data directory, but you will probably use a system directory */
+
+data canivel_202111;
+	varA=1; 
+run;
+data canivel_202112;
+	varA=1; 
+run;
+data canivel_202110;
+	varA=1;
+run;
+data canivel;
+	varA=1; 
+run;
+
+%getDataset(work, canivel_, CAN_1, 1, 8, 6); /* We will create diferente output macro variable just for the test, but you can save on the same */
+%put &CAN_1. / &whatIf.;
+
+%getDataset(work, canivel, CAN_2, 1, 0, 0);
+%put &CAN_2. / &whatIf.;
+
+
+data canivel_202202;
+	varA=1;
+run;
+%getDataset(work, canivel_, CAN_3, 1, 8, 6);
+%put &CAN_3. / &whatIf.;
+
+
+/* Check your outputs */
+
+/* Table name */
+%put "This is your table lib+name: &CAN_1."
+
+/* Table Reference */
+%put "This is your table reference: &DT_CAN_1."
+
+/* Last Modified */
+%put "This is your table last modified information: &DATE_MOD_DT_CAN_1."
